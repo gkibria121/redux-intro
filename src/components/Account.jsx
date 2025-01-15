@@ -1,21 +1,33 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { deposit, withdraw } from "../features/Account";
+import { deposit, payLoan, requestLoan, withdraw } from "../features/Account";
 
 function Account() {
   const dispatch = useDispatch();
 
   const { name } = useSelector((store) => store.customer);
+  const { loan } = useSelector((store) => store.account);
   const [depositAmount, setDepositAmount] = useState(0);
   const [withdrawAmount, setWithdrawAmount] = useState(0);
+  const [loanAmount, setLoanAmount] = useState(0);
+  const [loanReason, setLoanReason] = useState("");
 
   const handleWithdraw = () => {
     dispatch(withdraw(withdrawAmount));
+    setWithdrawAmount(0);
   };
-
+  const handleLoan = () => {
+    dispatch(requestLoan(loanAmount, loanReason));
+    setLoanAmount("");
+    setLoanReason("");
+  };
   const handleDeposit = () => {
     dispatch(deposit(depositAmount));
     setDepositAmount(0);
+  };
+
+  const handlePayLoan = () => {
+    dispatch(payLoan());
   };
   return (
     <div className="account">
@@ -52,13 +64,27 @@ function Account() {
         </div>
         <div>
           <label htmlFor="">Request loan</label>
-          <input type="text" name="" id="" placeholder="Loan amount" />
-          <input type="text" name="" id="" placeholder="Loan purpose" />
-          <button>Request loan</button>
+          <input
+            value={loanAmount}
+            onChange={(e) => setLoanAmount(+e.target.value)}
+            type="text"
+            name=""
+            id=""
+            placeholder="Loan amount"
+          />
+          <input
+            value={loanReason}
+            onChange={(e) => setLoanReason(e.target.value)}
+            type="text"
+            name=""
+            id=""
+            placeholder="Loan purpose"
+          />
+          <button onClick={handleLoan}>Request loan</button>
         </div>
         <div>
-          <label htmlFor="">Pay back 1X</label>
-          <button>Pay Loan</button>
+          <label htmlFor="">Pay back ${loan}</label>
+          <button onClick={handlePayLoan}>Pay Loan</button>
         </div>
       </form>
     </div>
