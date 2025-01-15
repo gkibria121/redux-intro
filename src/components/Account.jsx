@@ -8,6 +8,7 @@ function Account() {
   const { name } = useSelector((store) => store.customer);
   const { loan } = useSelector((store) => store.account);
   const [depositAmount, setDepositAmount] = useState(0);
+  const [currencty, setCurrency] = useState("usd");
   const [withdrawAmount, setWithdrawAmount] = useState(0);
   const [loanAmount, setLoanAmount] = useState(0);
   const [loanReason, setLoanReason] = useState("");
@@ -22,8 +23,9 @@ function Account() {
     setLoanReason("");
   };
   const handleDeposit = () => {
-    dispatch(deposit(depositAmount));
+    dispatch(deposit(depositAmount, currencty));
     setDepositAmount(0);
+    setCurrency("USD");
   };
 
   const handlePayLoan = () => {
@@ -44,9 +46,9 @@ function Account() {
             value={depositAmount}
             onChange={(e) => setDepositAmount(+e.target.value)}
           />
-          <select name="" id="">
+          <select name="" id="" value={currencty} onChange={(e) => setCurrency(e.target.value)}>
             <option value="USD">USD</option>
-            <option value="BDT">BDT</option>
+            <option value="INR">INR</option>
             <option value="GBP">GBP</option>
           </select>
           <button onClick={handleDeposit}>deposit</button>
