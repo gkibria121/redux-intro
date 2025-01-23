@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   balance: 0,
@@ -39,9 +39,6 @@ const AccountReducer = createSlice({
   initialState: initialState,
 
   reducers: {
-    deposit(state, action) {
-      state.balance += action.payload;
-    },
     withdraw(state, action) {
       state.balance -= action.payload;
     },
@@ -63,22 +60,40 @@ const AccountReducer = createSlice({
       state.loanPurpose = "";
     },
   },
+  extraReducers: (builder) => {
+    builder.addCase(deposit.fulfilled, (state, action) => {
+      state.balance += action.payload;
+    });
+  },
 });
 
-const deposit = (amount, currency) => {
-  if (String(currency).toLocaleLowerCase() === "usd") {
-    return { type: "account/deposit", payload: amount };
-  }
+// const deposit = (amount, currency) => {
+//   if (String(currency).toLocaleLowerCase() === "usd") {
+//     return { type: "account/deposit", payload: amount };
+//   }
 
-  return async (dispatch) => {
-    const response = await fetch(
-      `https://api.frankfurter.dev/v1/latest?base=USD&symbols=${currency}`
-    );
-    if (!response.ok) return;
-    const { rates } = await response.json();
-    dispatch({ type: "account/deposit", payload: amount / rates[currency] });
-  };
-};
+//   return async (dispatch) => {
+//     const response = await fetch(
+//       `https://api.frankfurter.dev/v1/latest?base=USD&symbols=${currency}`
+//     );
+//     if (!response.ok) return;
+//     const { rates } = await response.json();
+//     dispatch({ type: "account/deposit", payload: amount / rates[currency] });
+//   };
+// };
+
+const deposit = createAsyncThunk("account/deposit", async ({ amount, currency }) => {
+  console.log(amount, currency);
+  if (String(currency).toLocaleLowerCase() === "usd") {
+    return amount;
+  }
+  const response = await fetch(
+    `https://api.frankfurter.dev/v1/latest?base=USD&symbols=${currency}`
+  );
+  if (!response.ok) return;
+  const { rates } = await response.json();
+  return amount / rates[currency];
+});
 
 export default AccountReducer.reducer;
 export { deposit };
